@@ -52,13 +52,14 @@ static uint16_t internet_checksum(const void* ptr, size_t count)
 
 int main(int argc, char** argv) 
 {
-    if (pledge("stdio io inet dns", nullptr) < 0) {
+    if (pledge("stdio id inet dns", nullptr) < 0) {
+        printf("A\n");
         perror("pledge");
         return 1;
     }
 
     const char* target = nullptr;
-    uint8_t max_hops = 255;
+    int max_hops = 255;
     int timeout_ms = 5000;
 
     Core::ArgsParser args_parse;
@@ -80,6 +81,7 @@ int main(int argc, char** argv)
     }
 
     if (pledge("stdio inet dns", nullptr) < 0) {
+        printf("B\n");
         perror("pledge");
         return 1;
     }
@@ -107,10 +109,13 @@ int main(int argc, char** argv)
     uint32_t target_inaddr = *(const in_addr_t*)target_host->h_addr_list[0];
 
     if (pledge("stdio inet", nullptr) < 0) {
+        printf("C\n");
         perror("pledge");
         close(sock_fd);
         return 1;
     }
+
+    pid_t pid = getpid();
 
     sockaddr_in target_address;
     memset(&target_address, 0, sizeof(target_address));
@@ -128,7 +133,7 @@ int main(int argc, char** argv)
 
     int seq = 1;
 
-    for( ; seq - 1 < max_hops; seq++ ) {
+    for( ; (seq - 1) < max_hops; seq++ ) {
         PingPacket ping_packet;
         PingPacket pong_packet;
         memset(&ping_packet, 0, sizeof(PingPacket));
@@ -145,6 +150,7 @@ int main(int argc, char** argv)
         ping_packet.header.code = 0;
         ping_packet.header.un.echo.id = htons(pid);
         ping_packet.header.un.echo.sequence = htons(seq);
+        ping_packet.header.checksum = internet_checksum(&ping_packet, sizeof(PingPacket));
 
         result = sendto(sock_fd, &ping_packet, sizeof(PingPacket), 0, (const struct sockaddr*)&target_address, sizeof(sockaddr_in));
         if (result < 0) {
@@ -152,8 +158,8 @@ int main(int argc, char** argv)
             close(sock_fd);
             return 1;
         }
-
-        result = recvfrom(sock_fd, &pong_packet, sizeof(PingPacket), 0, &recv_address, sizeof(recv_address));
+        socklen_t recv_addr_size = sizeof(recv_address);
+        result = recvfrom(sock_fd, &pong_packet, sizeof(PingPacket), 0, (struct sockaddr*)&recv_address, &recv_addr_size);
         if (result < 0) {
             perror("recvfrom");
             close(sock_fd);
@@ -167,6 +173,7 @@ int main(int argc, char** argv)
         }
 
         if(pong_packet.header.type == 0) {
+            printf("done\n");
             close(sock_fd);
             return 0;
         }

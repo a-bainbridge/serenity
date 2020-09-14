@@ -122,6 +122,7 @@ void NetworkAdapter::send_ipv4(const MACAddress& destination_mac, const IPv4Addr
     ipv4.set_protocol((u8)protocol);
     ipv4.set_length(sizeof(IPv4Packet) + payload.size());
     ipv4.set_ident(1);
+    dbg() << "bruh " << ttl;
     ipv4.set_ttl(ttl);
     ipv4.set_checksum(ipv4.compute_checksum());
     m_packets_out++;

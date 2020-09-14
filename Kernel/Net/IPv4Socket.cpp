@@ -229,6 +229,7 @@ KResultOr<size_t> IPv4Socket::sendto(FileDescription&, const void* data, size_t 
 #endif
 
     if (type() == SOCK_RAW) {
+        dbg() << m_ttl;
         routing_decision.adapter->send_ipv4(routing_decision.next_hop, m_peer_address, (IPv4Protocol)protocol(), { (const u8*)data, data_length }, m_ttl);
         return data_length;
     }
@@ -456,6 +457,7 @@ KResult IPv4Socket::setsockopt(int level, int option, Userspace<const void*> use
             return KResult(-EFAULT);
         if (value < 0 || value > 255)
             return KResult(-EINVAL);
+        dbg() << "new ttl " << value;
         m_ttl = value;
         return KSuccess;
     }

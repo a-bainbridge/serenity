@@ -88,7 +88,7 @@ elif [ "$1" = "qtap" ]; then
         $SERENITY_COMMON_QEMU_ARGS \
         $SERENITY_KVM_ARG \
         $SERENITY_PACKET_LOGGING_ARG \
-        -netdev tap,ifname=tap0,id=br0 \
+        -netdev tap,ifname=tap0,id=br0,script=no,downscript=no \
         -device e1000,netdev=br0 \
         -kernel Kernel/Kernel \
         -append "${SERENITY_KERNEL_CMDLINE}"
