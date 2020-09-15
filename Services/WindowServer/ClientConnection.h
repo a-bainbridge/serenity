@@ -144,6 +144,7 @@ private:
     virtual void handle(const Messages::WindowServer::DisableDisplayLink&) override;
     virtual void handle(const Messages::WindowServer::SetWindowProgress&) override;
     virtual void handle(const Messages::WindowServer::Pong&) override;
+    virtual OwnPtr<Messages::WindowServer::CreateGLContextResponse> handle(const Messages::WindowServer::CreateGLContext&) override;
 
     Window* window_from_id(i32 window_id);
 

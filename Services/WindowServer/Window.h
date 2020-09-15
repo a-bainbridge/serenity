@@ -285,6 +285,9 @@ public:
     Gfx::DisjointRectSet& transparency_rects() { return m_transparency_rects; }
     Gfx::DisjointRectSet& transparency_wallpaper_rects() { return m_transparency_wallpaper_rects; }
 
+    i32 glcontext_id() const { return m_glcontext_id; }
+    void set_glcontext_id(i32 gctx_id) { m_glcontext_id = gctx_id; }
+
 private:
     void handle_mouse_event(const MouseEvent&);
     void update_menu_item_text(PopupMenuItem item);
@@ -352,6 +355,7 @@ private:
     MenuItem* m_window_menu_close_item { nullptr };
     int m_minimize_animation_step { -1 };
     int m_progress { -1 };
+    i32 m_glcontext_id { -1 };
 };
 
 }

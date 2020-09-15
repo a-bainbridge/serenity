@@ -898,4 +898,18 @@ void ClientConnection::did_become_responsive()
     set_unresponsive(false);
 }
 
+OwnPtr<Messages::WindowServer::CreateGLContextResponse> ClientConnection::handle(const Messages::WindowServer::CreateGLContext& message) {
+    auto it = m_windows.find(message.window_id());
+    if (it == m_windows.end()) {
+        did_misbehave("CreateGLContext with bad window ID");
+        return make<Messages::WindowServer::CreateGLContextResponse>(-1);
+    }
+    if (it->value->glcontext_id() != -1) {
+        did_misbehave("CreateGLContext with active context on window");
+        return make<Messages::WindowServer::CreateGLContextResponse>(-1);
+    }
+    it->value->set_glcontext_id(message.window_id()); //lazy
+    return make<Messages::WindowServer::CreateGLContextResponse>(it->value->glcontext_id());
+}
+
 }

@@ -106,4 +106,6 @@ endpoint WindowServer = 2
     DisableDisplayLink() =|
 
     Pong() =|
+
+    CreateGLContext(i32 window_id) => (i32 context_id)
 }
